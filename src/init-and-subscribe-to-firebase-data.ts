@@ -1,29 +1,20 @@
-import {
-  DatabaseReference,
-  getPath,
-  ref,
-  onValue,
-  set,
-} from './firebase-service';
+import { DatabaseReference, onValue, set } from './firebase-service';
 
 export const initAndSubscribeToFirebaseData = <T = any>(
-  parentRef: DatabaseReference,
-  childPath: string,
-  defaultValue: T,
-  callback?: (val: T) => void,
+  ref: DatabaseReference,
+  defaultValue?: T,
   commit?: (mutation: string, data: T) => void,
   mutation?: string,
+  callback?: (val: T) => void,
   firebaseConfig?: any
 ) => {
-  const path = getPath(parentRef, childPath);
-  const dbRef = ref(path, firebaseConfig);
   return onValue<T>(
-    dbRef,
+    ref,
     data => {
       let val = data;
       if (data === undefined) {
-        val = defaultValue;
-        set(dbRef, defaultValue, firebaseConfig);
+        val = defaultValue as any;
+        if (val != null) set(ref, defaultValue, firebaseConfig);
       }
       if (!!commit && !!mutation) {
         commit(mutation, val);

@@ -51,9 +51,13 @@ export const onChildAdded = <T>(
 ) => {
   init(firebaseConfig);
   return db.onChildAdded(query, snapshot => {
-    const val = snapshot.val();
-    if (!!val || val === 0) callback(val);
-    else callback(defaultValue as any);
+    let val = snapshot.val();
+    if (!!val || val === 0) {
+      if (typeof val === 'object') {
+        val = { ...val, key: snapshot.key };
+      }
+      callback(val);
+    } else callback(defaultValue as any);
   });
 };
 
