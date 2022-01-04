@@ -1,5 +1,5 @@
 {
-  "name": "firebase-helpers",
+  "name": "@walts81/firebase-helpers",
   "version": "1.0.1",
   "description": "",
   "main": "lib/index.js",
