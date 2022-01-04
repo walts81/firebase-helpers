@@ -5,14 +5,7 @@ install:
   - npm install
 jobs:
   include:
-    - stage: Build
-      env:
-        global:
-          - NODE_ENV=development
-      script:
-        - npm run build
-      # after_success: npm run coverage
-    - stage: npm release
+    - stage: Build and Release
       script: npm run build
       deploy:
         provider: npm
