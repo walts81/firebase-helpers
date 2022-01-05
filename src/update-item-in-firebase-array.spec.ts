@@ -6,30 +6,31 @@ import { DatabaseReference } from './firebase-types';
 import { updateItemInFirebaseArray } from './update-item-in-firebase-array';
 
 describe('update-item-in-firebase-array should', () => {
+  const dbRef: DatabaseReference = { key: 'parentPath' } as any;
+  const updatedRef: any = { key: 'refPath' };
+  const dataNoKey: any = { data: 'test' };
+  const dataWithKey: any = { key: 'test-key', data: 'test' };
+  const updatedData: any = { key: dataWithKey.key, data: 'new-data' };
   it('not update when no key provided', async () => {
-    const ref: DatabaseReference = 'parentPath' as any;
-    const arr = [{ data: 'test' }];
-    const refStub = sinon.stub(service, 'ref').returns('refPath' as any);
+    const arr = [dataNoKey];
+    const refStub = sinon.stub(service, 'ref').returns(updatedRef);
     const updateStub = sinon.stub(service, 'update').returns(Promise.resolve());
-    await updateItemInFirebaseArray(ref, arr[0] as any, arr);
+    await updateItemInFirebaseArray(dbRef, arr[0] as any, arr);
     expect(refStub.called).to.be.false;
     expect(updateStub.called).to.be.false;
     refStub.restore();
     updateStub.restore();
   });
   it('update when key is provided', async () => {
-    const ref: DatabaseReference = 'parentPath' as any;
-    const arr = [{ key: 'test-key', data: 'test' }];
-    const refStub = sinon.stub(service, 'ref').returns('refPath' as any);
+    const arr = [dataWithKey];
+    const refStub = sinon.stub(service, 'ref').returns(updatedRef);
     const updateStub = sinon.stub(service, 'update').returns(Promise.resolve());
-    const newData = { key: 'test-key', data: 'new-data' };
-    const result = await updateItemInFirebaseArray(ref, newData, arr);
+    const result = await updateItemInFirebaseArray(dbRef, updatedData, arr);
     expect(refStub.calledOnceWithExactly('parentPath/test-key', undefined)).to
       .be.true;
-    expect(
-      updateStub.calledOnceWithExactly('refPath' as any, newData, undefined)
-    ).to.be.true;
-    expect(result).to.eql([newData]);
+    expect(updateStub.calledOnceWithExactly(updatedRef, updatedData, undefined))
+      .to.be.true;
+    expect(result).to.eql([updatedData]);
     refStub.restore();
     updateStub.restore();
   });

@@ -5,36 +5,41 @@ import { initFirebaseArray } from './init-firebase-array';
 import * as service from './firebase-service';
 
 describe('init-firebase-array should', () => {
+  const snapshot = { key: 'test-key' };
+  const dbRef: any = { key: 'parentPath' };
+  const updateRef: any = { key: 'newRef' };
+  const newData: any = { data: 'test' };
   it('pass config', async () => {
     const stub = sinon.stub(service, 'remove');
     const config = { key: 'test' };
-    await initFirebaseArray(null as any, [], config);
-    expect(stub.calledOnceWithExactly(null as any, config)).to.be.true;
+    await initFirebaseArray(dbRef, [], config);
+    expect(stub.calledOnceWithExactly(dbRef, config)).to.be.true;
     stub.restore();
   });
   it('remove existing array', async () => {
     const stub = sinon.stub(service, 'remove');
-    await initFirebaseArray(null as any, []);
-    expect(stub.calledOnceWithExactly(null as any, undefined)).to.be.true;
+    await initFirebaseArray(dbRef, []);
+    expect(stub.calledOnceWithExactly(dbRef, undefined)).to.be.true;
     stub.restore();
   });
   it('update item with key after push', async () => {
     const removeStub = sinon.stub(service, 'remove');
-    const snapshot = { ref: 'test/path', key: 'test-key' };
     const pushStub = sinon.stub(service, 'push').callsFake((r, d) => {
       return Promise.resolve(snapshot as any);
     });
-    const refStub = sinon.stub(service, 'ref').returns('newRef' as any);
+    const refStub = sinon.stub(service, 'ref').returns(updateRef);
     const updateStub = sinon.stub(service, 'update').returns(Promise.resolve());
     const allStubs = [removeStub, pushStub, refStub, updateStub];
-    const arr = [{ key: '', data: 'test' }];
-    await initFirebaseArray(null as any, arr);
-    expect(pushStub.calledOnceWithExactly(null as any, arr[0])).to.be.true;
-    expect(refStub.calledOnceWithExactly(snapshot.ref, undefined)).to.be.true;
+    const arr = [newData];
+    await initFirebaseArray(dbRef, arr);
+    expect(pushStub.calledOnceWithExactly(dbRef, arr[0])).to.be.true;
+    expect(
+      refStub.calledOnceWithExactly(`${dbRef.key}/${snapshot.key}`, undefined)
+    ).to.be.true;
     expect(
       updateStub.calledOnceWith(
-        'newRef' as any,
-        { key: 'test-key', data: 'test' },
+        updateRef,
+        { ...newData, key: snapshot.key },
         undefined
       )
     ).to.be.true;
@@ -42,17 +47,21 @@ describe('init-firebase-array should', () => {
   });
   it('commit mutation', async () => {
     const removeStub = sinon.stub(service, 'remove');
-    const snapshot = { ref: 'test/path', key: 'test-key' };
     const pushStub = sinon.stub(service, 'push').callsFake((r, d) => {
       return Promise.resolve(snapshot as any);
     });
-    const refStub = sinon.stub(service, 'ref').returns('newRef' as any);
+    const refStub = sinon.stub(service, 'ref').returns(updateRef);
     const updateStub = sinon.stub(service, 'update').returns(Promise.resolve());
     const allStubs = [removeStub, pushStub, refStub, updateStub];
-    const arr = [{ key: '', data: 'test' }];
+    const arr = [newData];
     const spy = sinon.fake();
-    await initFirebaseArray(null as any, arr, spy, 'test-mutation');
-    expect(spy.calledOnceWithExactly('test-mutation', arr)).to.be.true;
+    await initFirebaseArray(dbRef, arr, spy, 'test-mutation');
+    expect(
+      spy.calledOnceWith(
+        'test-mutation',
+        arr.map(x => ({ ...x, key: snapshot.key }))
+      )
+    ).to.be.true;
     allStubs.forEach(x => x.restore());
   });
 });

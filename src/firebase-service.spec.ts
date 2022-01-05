@@ -66,16 +66,24 @@ describe('firebase-service', () => {
   });
   describe('getPath should', () => {
     it('add missing slash separator', () => {
-      const path = service.getPath('parentPath' as any, 'childPath');
+      const path = service.getPath({ key: 'parentPath' } as any, 'childPath');
       expect(path).to.eq('parentPath/childPath');
     });
     it('not add slash when already exists in childPath', () => {
-      const path = service.getPath('parentPath' as any, '/childPath');
+      const path = service.getPath({ key: 'parentPath' } as any, '/childPath');
       expect(path).to.eq('parentPath/childPath');
     });
     it('not add slash when already exists in parentPath', () => {
-      const path = service.getPath('parentPath/' as any, 'childPath');
+      const path = service.getPath({ key: 'parentPath/' } as any, 'childPath');
       expect(path).to.eq('parentPath/childPath');
+    });
+    it('recurse parent path', () => {
+      const parentRef: any = {
+        key: 'parentPath',
+        parent: { key: 'grandparentPath' },
+      };
+      const path = service.getPath(parentRef, 'childPath');
+      expect(path).to.eq('grandparentPath/parentPath/childPath');
     });
   });
   describe('onValue should', () => {
@@ -253,6 +261,112 @@ describe('firebase-service', () => {
       expect(stub.calledOnce).to.be.true;
       expect(dataResult).to.eq(0);
       stub.restore();
+    });
+  });
+  describe('onChildAddedWithCommit should', () => {
+    it('map array', () => {
+      const childAddedStub = sinon
+        .stub(service, 'onChildAdded')
+        .callsFake((q, c) => {
+          c({ key: 'test-key', data: 'added-data' });
+          return () => ({});
+        });
+      const commitSpy = sinon.fake();
+      const mapStub = sinon.stub().callsFake((arr: any[]) => [...arr]);
+      const arr: any[] = [];
+      service.onChildAddedWithCommit(
+        null as any,
+        () => arr,
+        commitSpy,
+        'test-mutation',
+        mapStub
+      );
+      expect(mapStub.calledOnceWithExactly(arr)).to.be.true;
+      childAddedStub.restore();
+    });
+    it('commit mutation', () => {
+      const childAddedStub = sinon
+        .stub(service, 'onChildAdded')
+        .callsFake((q, c) => {
+          c({ key: 'test-key', data: 'added-data' });
+          return () => ({});
+        });
+      const arr: any[] = [];
+      const spy = sinon.fake();
+      service.onChildAddedWithCommit(
+        null as any,
+        () => arr,
+        spy,
+        'test-mutation'
+      );
+      expect(
+        spy.calledOnceWith('test-mutation', [
+          { key: 'test-key', data: 'added-data' },
+        ])
+      ).to.be.true;
+      childAddedStub.restore();
+    });
+    it('commit mutation for primitive data', () => {
+      const childAddedStub = sinon
+        .stub(service, 'onChildAdded')
+        .callsFake((q, c) => {
+          c(1);
+          return () => ({});
+        });
+      const arr: any[] = [0];
+      const spy = sinon.fake();
+      service.onChildAddedWithCommit(
+        null as any,
+        () => arr,
+        spy,
+        'test-mutation'
+      );
+      expect(spy.calledOnceWith('test-mutation', [0, 1])).to.be.true;
+      childAddedStub.restore();
+    });
+  });
+  describe('onChildChangedWithCommit should', () => {
+    it('map array', () => {
+      const childChangedStub = sinon
+        .stub(service, 'onChildChanged')
+        .callsFake((q, c) => {
+          c({ key: 'test-key', data: 'added-data' });
+          return () => ({});
+        });
+      const commitSpy = sinon.fake();
+      const mapStub = sinon.stub().callsFake((arr: any[]) => [...arr]);
+      const arr: any[] = [{ key: 'test-key', data: 'orig-data' }];
+      service.onChildChangedWithCommit(
+        null as any,
+        () => arr,
+        commitSpy,
+        'test-mutation',
+        mapStub
+      );
+      expect(mapStub.calledOnceWithExactly(arr)).to.be.true;
+      childChangedStub.restore();
+    });
+    it('commit mutation', () => {
+      const childChangedStub = sinon
+        .stub(service, 'onChildChanged')
+        .callsFake((q, c) => {
+          c({ key: 'test-key', data: 'added-data' });
+          return () => ({});
+        });
+      const arr: any[] = [{ key: 'test-key', data: 'orig-data' }];
+      const spy = sinon.fake();
+      service.onChildChangedWithCommit(
+        null as any,
+        () => arr,
+        spy,
+        'test-mutation'
+      );
+      expect(
+        spy.calledOnceWith('test-mutation', [
+          { key: 'test-key', data: 'added-data' },
+        ])
+      ).to.be.true;
+      childChangedStub.restore();
     });
   });
   describe('push should', () => {

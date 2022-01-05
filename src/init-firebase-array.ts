@@ -27,7 +27,8 @@ async function initFirebaseArray<T extends { key: string }>(
   for (const item of arr) {
     const snapshot = await service.push(dbRef, item);
     item.key = snapshot.key as any;
-    const newRef = service.ref(snapshot.ref.toString(), configToUse);
+    const path = service.getPath(dbRef, item.key);
+    const newRef = service.ref(path, configToUse);
     await service.update(newRef, item, configToUse);
   }
 

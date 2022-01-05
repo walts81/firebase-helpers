@@ -16,9 +16,19 @@ export const init = (firebaseConfig: any) => {
   }
 };
 
+const getRootPath = (ref: DatabaseReference) => {
+  let path = ref.key;
+  let parent = ref.parent;
+  while (!!parent && !!parent.key) {
+    path = parent.key + '/' + path;
+    parent = parent.parent;
+  }
+  return path;
+};
+
 export const getPath = (parentRef: DatabaseReference, childPath: string) => {
   let result = '';
-  const parentPath = parentRef.toString();
+  const parentPath = getRootPath(parentRef);
   result += parentPath;
   if (!result.endsWith('/') && !childPath.startsWith('/')) result += '/';
   result += childPath;
@@ -60,6 +70,61 @@ export const onChildAdded = <T = any>(
       callback(val);
     } else callback(defaultValue as any);
   });
+};
+
+const onChildAddedOrChanged = <T = any>(
+  getArr: () => T[],
+  commit: (mutation: string, data: T[]) => void,
+  mutation: string,
+  mapArray?: (arr: T[]) => T[]
+) => {
+  return (data: T) => {
+    const mapArr = !!mapArray ? mapArray : x => [...x];
+    const arr = mapArr(getArr());
+    let ix = -1;
+    if (typeof data === 'object') {
+      ix = arr.findIndex(x => x.key === (data as any).key);
+    } else {
+      ix = arr.findIndex(x => x === data);
+    }
+    if (ix < 0) arr.push(data);
+    else arr.splice(ix, 1, data);
+    commit(mutation, arr);
+  };
+};
+
+export const onChildAddedWithCommit = <T = any>(
+  query: Query,
+  getArr: () => T[],
+  commit: (mutation: string, data: T[]) => void,
+  mutation: string,
+  mapArray?: (arr: T[]) => T[],
+  defaultValue?: T,
+  firebaseConfig?: any
+) => {
+  return onChildAdded<T>(
+    query,
+    x => onChildAddedOrChanged(getArr, commit, mutation, mapArray)(x),
+    defaultValue,
+    firebaseConfig
+  );
+};
+
+export const onChildChangedWithCommit = <T = any>(
+  query: Query,
+  getArr: () => T[],
+  commit: (mutation: string, data: T[]) => void,
+  mutation: string,
+  mapArray?: (arr: T[]) => T[],
+  defaultValue?: T,
+  firebaseConfig?: any
+) => {
+  return onChildChanged<T>(
+    query,
+    x => onChildAddedOrChanged(getArr, commit, mutation, mapArray)(x),
+    defaultValue,
+    firebaseConfig
+  );
 };
 
 export const onChildChanged = <T = any>(
