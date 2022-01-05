@@ -1,4 +1,5 @@
-import { FirebaseService } from './firebase-service';
+import { isArray } from './args-helper';
+import * as service from './firebase-service';
 import { DataSnapshot, Query, Unsubscribe } from './firebase-types';
 
 const once = (
@@ -15,32 +16,32 @@ const once = (
   });
 };
 
-export const onArrayOnce = <T = any>(query: Query, firebaseConfig?: any) => {
-  const svc = FirebaseService.instance;
-  svc.init(firebaseConfig);
-  return new Promise<Array<T>>(resolve => {
-    once(query, svc.onValue).then(snapshot => {
-      const data: T[] = [];
-      if (snapshot.exists()) {
-        snapshot.forEach(x => {
-          data.push(x.val());
-        });
-      }
-      resolve(data);
+export const onArrayOnce = async <T = any>(
+  query: Query,
+  firebaseConfig?: any
+) => {
+  service.init(firebaseConfig);
+  const snapshot = await once(query, service.onValue);
+  const data: T[] = [];
+  if (snapshot.exists()) {
+    snapshot.forEach(x => {
+      data.push(x.val());
     });
-  });
+  }
+  return data;
 };
 
-export const onValueOnce = <T = any>(query: Query, firebaseConfig?: any) => {
-  const svc = FirebaseService.instance;
-  svc.init(firebaseConfig);
-  return new Promise<T>(resolve => {
-    once(query, svc.onValue).then(snapshot => {
-      if (snapshot.exists()) {
-        resolve(snapshot.val());
-      } else {
-        resolve(undefined as any);
-      }
-    });
-  });
+export const onValueOnce = async <T = any>(
+  query: Query,
+  firebaseConfig?: any
+): Promise<T> => {
+  service.init(firebaseConfig);
+  const snapshot = await once(query, service.onValue);
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    if (typeof data === 'object' && !isArray(data))
+      return { key: snapshot.key, ...data };
+    return data;
+  }
+  return undefined as any;
 };
