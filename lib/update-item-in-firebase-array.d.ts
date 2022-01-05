@@ -1,4 +1,14 @@
-import { DatabaseReference } from './firebase-service';
-export declare const updateItemInFirebaseArray: <T extends {
+import { DatabaseReference } from './firebase-types';
+declare function updateItemInFirebaseArray<T extends {
     key: string;
-}>(parentRef: DatabaseReference, item: T, arr: T[], mapArr?: ((a: T[]) => T[]) | undefined, commit?: ((mutation: string, data: T[]) => void) | undefined, mutation?: string | undefined, firebaseConfig?: any) => Promise<void>;
+}>(parentRef: DatabaseReference, item: T, arr: T[], firebaseConfig?: any): Promise<Array<T>>;
+declare function updateItemInFirebaseArray<T extends {
+    key: string;
+}>(parentRef: DatabaseReference, item: T, arr: T[], mappArr: (arr: T[]) => T[], firebaseConfig?: any): Promise<Array<T>>;
+declare function updateItemInFirebaseArray<T extends {
+    key: string;
+}>(parentRef: DatabaseReference, item: T, arr: T[], commit: (mutation: string, data: T[]) => void, mutation: string, firebaseConfig?: any): Promise<Array<T>>;
+declare function updateItemInFirebaseArray<T extends {
+    key: string;
+}>(parentRef: DatabaseReference, item: T, arr: T[], mappArr: (arr: T[]) => T[], commit: (mutation: string, data: T[]) => void, mutation: string, firebaseConfig?: any): Promise<Array<T>>;
+export { updateItemInFirebaseArray };
