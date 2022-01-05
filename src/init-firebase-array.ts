@@ -1,10 +1,5 @@
-import {
-  DatabaseReference,
-  ref,
-  push,
-  remove,
-  update,
-} from './firebase-service';
+import { FirebaseService } from './firebase-service';
+import { DatabaseReference } from './firebase-types';
 
 export const initFirebaseArray = async <T extends { key: string }>(
   dbRef: DatabaseReference,
@@ -13,12 +8,15 @@ export const initFirebaseArray = async <T extends { key: string }>(
   mutation?: string,
   firebaseConfig?: any
 ) => {
-  await remove(dbRef, firebaseConfig);
+  await FirebaseService.instance.remove(dbRef, firebaseConfig);
   for (const item of arr) {
-    const snapshot = await push(dbRef, item);
+    const snapshot = await FirebaseService.instance.push(dbRef, item);
     item.key = snapshot.key as any;
-    const newRef = ref(snapshot.ref.toString(), firebaseConfig);
-    await update(newRef, item, firebaseConfig);
+    const newRef = FirebaseService.instance.ref(
+      snapshot.ref.toString(),
+      firebaseConfig
+    );
+    await FirebaseService.instance.update(newRef, item, firebaseConfig);
   }
   if (!!commit && !!mutation) {
     commit(mutation, arr);

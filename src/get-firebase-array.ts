@@ -1,4 +1,5 @@
-import { Query, onArrayOnce } from './firebase-service';
+import { Query } from './firebase-types';
+import { onArrayOnce } from './once';
 
 export const getFirebaseArray = async <T>(
   query: Query,

@@ -11,8 +11,11 @@ const build = () => {
 
 const clean = () => del('lib/');
 
+const cleanCoverage = () => del('coverage/');
+
 const defaultTask = gulp.series(clean, build);
 
 exports.build = build;
 exports.clean = clean;
+exports.cleanCoverage = cleanCoverage;
 exports.default = defaultTask;

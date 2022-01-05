@@ -1,0 +1,9 @@
+--compilers ts-node/register
+--require source-map-support/register
+--timeout 999999
+--colors
+--recursive
+--full-trace
+--bail
+
+src/**/*.spec.ts
