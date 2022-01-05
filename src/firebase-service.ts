@@ -76,19 +76,22 @@ const onChildAddedOrChanged = <T = any>(
   getArr: () => T[],
   commit: (mutation: string, data: T[]) => void,
   mutation: string,
-  mapArray?: (arr: T[]) => T[]
+  mapData?: (data: any) => T
 ) => {
   return (data: T) => {
-    const mapArr = !!mapArray ? mapArray : x => [...x];
-    const arr = mapArr(getArr());
+    const mapDataToUse = !!mapData
+      ? mapData
+      : x => (!!x && typeof x === 'object' ? { ...x } : x);
+    const arr = getArr().map(mapDataToUse);
+    const dataToUse = mapDataToUse(data);
     let ix = -1;
     if (typeof data === 'object') {
-      ix = arr.findIndex(x => x.key === (data as any).key);
+      ix = arr.findIndex(x => x.key === dataToUse.key);
     } else {
-      ix = arr.findIndex(x => x === data);
+      ix = arr.findIndex(x => x === dataToUse);
     }
-    if (ix < 0) arr.push(data);
-    else arr.splice(ix, 1, data);
+    if (ix < 0) arr.push(dataToUse);
+    else arr.splice(ix, 1, dataToUse);
     commit(mutation, arr);
   };
 };
@@ -98,13 +101,13 @@ export const onChildAddedWithCommit = <T = any>(
   getArr: () => T[],
   commit: (mutation: string, data: T[]) => void,
   mutation: string,
-  mapArray?: (arr: T[]) => T[],
+  mapData?: (data: any) => T,
   defaultValue?: T,
   firebaseConfig?: any
 ) => {
   return onChildAdded<T>(
     query,
-    x => onChildAddedOrChanged(getArr, commit, mutation, mapArray)(x),
+    x => onChildAddedOrChanged(getArr, commit, mutation, mapData)(x),
     defaultValue,
     firebaseConfig
   );
@@ -115,13 +118,13 @@ export const onChildChangedWithCommit = <T = any>(
   getArr: () => T[],
   commit: (mutation: string, data: T[]) => void,
   mutation: string,
-  mapArray?: (arr: T[]) => T[],
+  mapData?: (data: any) => T,
   defaultValue?: T,
   firebaseConfig?: any
 ) => {
   return onChildChanged<T>(
     query,
-    x => onChildAddedOrChanged(getArr, commit, mutation, mapArray)(x),
+    x => onChildAddedOrChanged(getArr, commit, mutation, mapData)(x),
     defaultValue,
     firebaseConfig
   );

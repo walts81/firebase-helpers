@@ -4,6 +4,8 @@ export declare const getPath: (parentRef: DatabaseReference, childPath: string) 
 export declare const ref: (path: string, firebaseConfig?: any) => import("@firebase/database").DatabaseReference;
 export declare const onValue: <T = any>(query: Query, callback: (data: T) => void, defaultValue?: T | undefined, firebaseConfig?: any) => import("@firebase/database").Unsubscribe;
 export declare const onChildAdded: <T = any>(query: Query, callback: (data: T) => void, defaultValue?: T | undefined, firebaseConfig?: any) => import("@firebase/database").Unsubscribe;
+export declare const onChildAddedWithCommit: <T = any>(query: Query, getArr: () => T[], commit: (mutation: string, data: T[]) => void, mutation: string, mapData?: ((data: any) => T) | undefined, defaultValue?: T | undefined, firebaseConfig?: any) => import("@firebase/database").Unsubscribe;
+export declare const onChildChangedWithCommit: <T = any>(query: Query, getArr: () => T[], commit: (mutation: string, data: T[]) => void, mutation: string, mapData?: ((data: any) => T) | undefined, defaultValue?: T | undefined, firebaseConfig?: any) => import("@firebase/database").Unsubscribe;
 export declare const onChildChanged: <T = any>(query: Query, callback: (data: T) => void, defaultValue?: T | undefined, firebaseConfig?: any) => import("@firebase/database").Unsubscribe;
 export declare const push: <T = any>(ref: DatabaseReference, data: T, firebaseConfig?: any) => Promise<import("@firebase/database").DatabaseReference>;
 export declare const remove: (ref: DatabaseReference, firebaseConfig?: any) => Promise<void>;

@@ -272,7 +272,7 @@ describe('firebase-service', () => {
           return () => ({});
         });
       const commitSpy = sinon.fake();
-      const mapStub = sinon.stub().callsFake((arr: any[]) => [...arr]);
+      const mapStub = sinon.stub().callsFake((d: any) => ({ ...d }));
       const arr: any[] = [];
       service.onChildAddedWithCommit(
         null as any,
@@ -281,7 +281,8 @@ describe('firebase-service', () => {
         'test-mutation',
         mapStub
       );
-      expect(mapStub.calledOnceWithExactly(arr)).to.be.true;
+      expect(mapStub.calledOnceWith({ key: 'test-key', data: 'added-data' })).to
+        .be.true;
       childAddedStub.restore();
     });
     it('commit mutation', () => {
@@ -334,8 +335,9 @@ describe('firebase-service', () => {
           return () => ({});
         });
       const commitSpy = sinon.fake();
-      const mapStub = sinon.stub().callsFake((arr: any[]) => [...arr]);
-      const arr: any[] = [{ key: 'test-key', data: 'orig-data' }];
+      const existingData = { key: 'test-key', data: 'orig-data' };
+      const mapStub = sinon.stub().callsFake((d: any) => ({ ...d }));
+      const arr: any[] = [existingData];
       service.onChildChangedWithCommit(
         null as any,
         () => arr,
@@ -343,7 +345,10 @@ describe('firebase-service', () => {
         'test-mutation',
         mapStub
       );
-      expect(mapStub.calledOnceWithExactly(arr)).to.be.true;
+      expect(mapStub.calledTwice).to.be.true;
+      expect(mapStub.calledWith(existingData)).to.be.true;
+      expect(mapStub.calledWith({ key: 'test-key', data: 'added-data' })).to.be
+        .true;
       childChangedStub.restore();
     });
     it('commit mutation', () => {
