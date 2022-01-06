@@ -48,9 +48,13 @@ export const onValue = <T = any>(
 ) => {
   init(firebaseConfig);
   return db.onValue(query, snapshot => {
-    const val = snapshot.val();
-    if (!!val || val === 0) callback(val);
-    else callback(defaultValue as any);
+    if (snapshot.exists()) {
+      const val = snapshot.val();
+      if (!!val || val === 0) callback(val);
+      else callback(defaultValue as any);
+    } else {
+      callback(defaultValue as any);
+    }
   });
 };
 

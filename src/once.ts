@@ -1,5 +1,6 @@
 import { isArray } from './args-helper';
 import * as service from './firebase-service';
+import * as db from './firebase-wrappers';
 import { DataSnapshot, Query, Unsubscribe } from './firebase-types';
 
 const once = (
@@ -21,7 +22,7 @@ export const onArrayOnce = async <T = any>(
   firebaseConfig?: any
 ) => {
   service.init(firebaseConfig);
-  const snapshot = await once(query, service.onValue);
+  const snapshot = await once(query, db.onValue);
   const data: T[] = [];
   if (snapshot.exists()) {
     snapshot.forEach(x => {
@@ -36,7 +37,7 @@ export const onValueOnce = async <T = any>(
   firebaseConfig?: any
 ): Promise<T> => {
   service.init(firebaseConfig);
-  const snapshot = await once(query, service.onValue);
+  const snapshot = await once(query, db.onValue);
   if (snapshot.exists()) {
     const data = snapshot.val();
     if (typeof data === 'object' && !isArray(data))

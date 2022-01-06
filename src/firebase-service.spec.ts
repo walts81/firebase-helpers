@@ -98,7 +98,7 @@ describe('firebase-service', () => {
     });
     it('call firebase onValue', () => {
       const data = { data: 'test' };
-      const snapshot = { key: 'test-key', val: () => data };
+      const snapshot = { exists: () => true, key: 'test-key', val: () => data };
       const stub = sinon.stub(db, 'onValue').callsFake((q, c): Unsubscribe => {
         c(snapshot as any);
         return () => {};
@@ -109,9 +109,9 @@ describe('firebase-service', () => {
       expect(dataResult).to.eq(data);
       stub.restore();
     });
-    it('return defaultValue when not found', () => {
+    it('return defaultValue when not null or empty', () => {
       const data = null as any;
-      const snapshot = { key: 'test-key', val: () => data };
+      const snapshot = { exists: () => true, key: 'test-key', val: () => data };
       const stub = sinon.stub(db, 'onValue').callsFake((q, c): Unsubscribe => {
         c(snapshot as any);
         return () => {};
@@ -122,9 +122,22 @@ describe('firebase-service', () => {
       expect(dataResult).to.eq(1);
       stub.restore();
     });
-    it('return zero instead of defaultValue if zero is found', () => {
+    it('return defaultValue when not found', () => {
+      const data = null as any;
+      const snapshot = { exists: () => false, key: '', val: () => data };
+      const stub = sinon.stub(db, 'onValue').callsFake((q, c): Unsubscribe => {
+        c(snapshot as any);
+        return () => {};
+      });
+      let dataResult: any = null;
+      service.onValue(null as any, d => (dataResult = d), 1);
+      expect(stub.calledOnce).to.be.true;
+      expect(dataResult).to.eq(1);
+      stub.restore();
+    });
+    it('return zero instead of defaultValue when value is zero', () => {
       const data = 0 as any;
-      const snapshot = { key: 'test-key', val: () => data };
+      const snapshot = { exists: () => true, key: 'test-key', val: () => data };
       const stub = sinon.stub(db, 'onValue').callsFake((q, c): Unsubscribe => {
         c(snapshot as any);
         return () => {};
