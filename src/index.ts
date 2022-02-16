@@ -5,5 +5,6 @@ export * from './get-firebase-array';
 export * from './init-and-subscribe-to-firebase-data';
 export * from './init-firebase-array';
 export * from './once';
+export * from './remove-all';
 export * from './update-item-in-firebase-array';
 export * from './update-items-in-firebase-array';
