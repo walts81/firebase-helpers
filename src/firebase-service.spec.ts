@@ -6,15 +6,16 @@ import * as service from './firebase-service';
 import { Unsubscribe } from './firebase-types';
 
 describe('firebase-service', () => {
+  const config: any = { apiKey: 'test-api-key', appId: 'test-app-id' };
+  beforeEach(() => service.closeApp());
   describe('init should', () => {
     const appObj: any = { key: 'app' };
     const dbObj: any = { key: 'db' };
-    const config: any = { key: 'test' };
     it('initialize firebase app when config passed in', () => {
       const stub1 = sinon.stub(db, 'initializeApp');
-      stub1.withArgs(config).returns(null as any);
+      stub1.withArgs(config).returns(appObj);
       const stub2 = sinon.stub(db, 'getDatabase');
-      stub2.withArgs(null as any).returns(dbObj);
+      stub2.withArgs(appObj).returns(dbObj);
       const stubs = [stub1, stub2];
       service.init(config);
       stubs.forEach(x => {
@@ -22,16 +23,34 @@ describe('firebase-service', () => {
         x.restore();
       });
     });
-    it('not initialize app when no config passed in', () => {
+    it('throw error when no config passed in and no already-inited app passed in', () => {
       const stubs = [
         sinon.stub(db, 'initializeApp'),
         sinon.stub(db, 'getDatabase'),
       ];
-      service.init(null);
+      let errorThrown = false;
+      try {
+        service.init(null);
+      } catch (err) {
+        errorThrown = true;
+      }
+      expect(errorThrown, 'No error thrown').to.be.true;
       stubs.forEach(x => {
         expect(x.called).to.be.false;
         x.restore();
       });
+    });
+    it('use already-inited app when passed in', () => {
+      const stubs = [
+        sinon.stub(db, 'initializeApp'),
+        sinon.stub(db, 'getDatabase'),
+      ];
+      const app = { name: 'test-app' };
+      const result = service.init(app);
+      expect(stubs[0].called).to.be.false;
+      expect(stubs[1].called).to.be.true;
+      stubs.forEach(x => x.restore());
+      expect(result.app).to.eq(app);
     });
     it('not initialize app after already initialized', () => {
       const stub1 = sinon.stub(db, 'initializeApp');
@@ -49,13 +68,14 @@ describe('firebase-service', () => {
   });
   describe('ref should', () => {
     it('call init', () => {
-      const refStub = sinon.stub(db, 'ref');
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      stubs.push(sinon.stub(db, 'ref'));
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       service.ref('test', config);
       expect(initStub.calledWithExactly(config)).to.be.true;
-      refStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase ref', () => {
       const stub = sinon.stub(db, 'ref');
@@ -88,13 +108,14 @@ describe('firebase-service', () => {
   });
   describe('onValue should', () => {
     it('call init', () => {
-      const onValueStub = sinon.stub(db, 'onValue');
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      stubs.push(sinon.stub(db, 'onValue'));
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       service.onValue(null as any, null as any, null as any, config);
       expect(initStub.calledWithExactly(config)).to.be.true;
-      onValueStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase onValue', () => {
       const data = { data: 'test' };
@@ -151,13 +172,14 @@ describe('firebase-service', () => {
   });
   describe('onChildAdded should', () => {
     it('call init', () => {
-      const onChildAddedStub = sinon.stub(db, 'onChildAdded');
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      stubs.push(sinon.stub(db, 'onChildAdded'));
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       service.onChildAdded(null as any, null as any, null as any, config);
       expect(initStub.calledWithExactly(config)).to.be.true;
-      onChildAddedStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase onChildAdded', () => {
       const data = { data: 'test' };
@@ -222,13 +244,14 @@ describe('firebase-service', () => {
   });
   describe('onChildChanged should', () => {
     it('call init', () => {
-      const onChildChangedStub = sinon.stub(db, 'onChildChanged');
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      stubs.push(sinon.stub(db, 'onChildChanged'));
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       service.onChildChanged(null as any, null as any, null as any, config);
       expect(initStub.calledWithExactly(config)).to.be.true;
-      onChildChangedStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase onChildChanged', () => {
       const data = { data: 'test' };
@@ -389,13 +412,14 @@ describe('firebase-service', () => {
   });
   describe('push should', () => {
     it('call init', async () => {
-      const pushStub = sinon.stub(db, 'push').resolves(null as any);
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      stubs.push(sinon.stub(db, 'push').resolves(null as any));
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       await service.push(null as any, null as any, config);
       expect(initStub.calledOnceWithExactly(config)).to.be.true;
-      pushStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase push', async () => {
       const refResult = { key: 'test' } as any;
@@ -410,15 +434,16 @@ describe('firebase-service', () => {
   });
   describe('remove should', () => {
     it('call init', async () => {
-      const removeStub = sinon
-        .stub(db, 'remove')
-        .callsFake(x => Promise.resolve());
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      const removeStub = sinon.stub(db, 'remove');
+      stubs.push(removeStub);
+      removeStub.callsFake(x => Promise.resolve());
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       await service.remove(null as any, config);
       expect(initStub.calledOnceWithExactly(config)).to.be.true;
-      removeStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase remove', async () => {
       const refArg = { key: 'test-arg' } as any;
@@ -430,13 +455,16 @@ describe('firebase-service', () => {
   });
   describe('update should', () => {
     it('call init', async () => {
-      const updateStub = sinon.stub(db, 'update').resolves(null as any);
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      const updateStub = sinon.stub(db, 'update');
+      stubs.push(updateStub);
+      updateStub.resolves(null as any);
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       await service.update(null as any, null as any, config);
       expect(initStub.calledOnceWithExactly(config)).to.be.true;
-      updateStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase update', async () => {
       const refResult = { key: 'test' } as any;
@@ -451,13 +479,16 @@ describe('firebase-service', () => {
   });
   describe('set should', () => {
     it('call init', async () => {
-      const setStub = sinon.stub(db, 'set').resolves(null as any);
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      const setStub = sinon.stub(db, 'set');
+      stubs.push(setStub);
+      setStub.resolves(null as any);
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       await service.set(null as any, null as any, config);
       expect(initStub.calledOnceWithExactly(config)).to.be.true;
-      setStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('call firebase set', async () => {
       const refResult = { key: 'test' } as any;
@@ -472,15 +503,16 @@ describe('firebase-service', () => {
   });
   describe('get should', () => {
     it('call init', async () => {
-      const getStub = sinon
-        .stub(db, 'get')
-        .resolves({ val: () => ({}) } as any);
-      const initStub = sinon.stub(service, 'init');
-      const config = { key: 'test' };
+      const stubs: sinon.SinonStub[] = [];
+      const getStub = sinon.stub(db, 'get');
+      stubs.push(getStub);
+      getStub.resolves({ val: () => ({}) } as any);
+      const initStub = sinon.stub(db, 'initializeApp');
+      stubs.push(initStub);
+      stubs.push(sinon.stub(db, 'getDatabase'));
       await service.get(null as any, null as any, config);
       expect(initStub.calledOnceWithExactly(config)).to.be.true;
-      getStub.restore();
-      initStub.restore();
+      stubs.forEach(x => x.restore());
     });
     it('return defaultValue when not found', async () => {
       const stub = sinon.stub(db, 'get').resolves({ val: () => null } as any);

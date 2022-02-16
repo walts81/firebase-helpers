@@ -6,6 +6,7 @@ import * as service from './firebase-service';
 import { onArrayOnce, onValueOnce } from './once';
 
 describe('onArrayOnce should', () => {
+  beforeEach(() => service.closeApp());
   it('call init', async () => {
     const snapshot: any = { exists: () => false };
     const onValueStub = sinon.stub(db, 'onValue').callsFake((q, c) => {

@@ -17,11 +17,17 @@ const once = (
   });
 };
 
+const initWithNoError = (config?: any) => {
+  if (!!config) {
+    service.init(config);
+  }
+};
+
 export const onArrayOnce = async <T = any>(
   query: Query,
   firebaseConfig?: any
 ) => {
-  service.init(firebaseConfig);
+  initWithNoError(firebaseConfig);
   const snapshot = await once(query, db.onValue);
   const data: T[] = [];
   if (snapshot.exists()) {
@@ -36,7 +42,7 @@ export const onValueOnce = async <T = any>(
   query: Query,
   firebaseConfig?: any
 ): Promise<T> => {
-  service.init(firebaseConfig);
+  initWithNoError(firebaseConfig);
   const snapshot = await once(query, db.onValue);
   if (snapshot.exists()) {
     const data = snapshot.val();

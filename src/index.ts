@@ -1,5 +1,6 @@
 export * from './firebase-service';
 export * from './firebase-types';
+export * as db from './firebase-wrappers';
 export * from './get-firebase-array';
 export * from './init-and-subscribe-to-firebase-data';
 export * from './init-firebase-array';
