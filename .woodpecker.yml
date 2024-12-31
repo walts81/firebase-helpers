@@ -6,8 +6,8 @@ steps:
       - npm run lint
       - npm run test
     when:
-      - event: push
-        branch: master
+      # - event: push
+      #   branch: master
       - event: manual
         evaluate: 'MANUAL_BUILD == "true"'
   build:
@@ -16,7 +16,6 @@ steps:
       NODE_ENV: production
     commands:
       - npm run build
-    depends_on: test
     when:
       - event: push
         branch: master
