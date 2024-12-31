@@ -9,7 +9,7 @@ describe('init-and-subscribe-to-firebase-data should', () => {
   const setupPrototypeWithUndefined = () => {
     return sinon
       .stub(service, 'onValue')
-      .callsFake((query, callback, defaultValue, firebaseConfig) => {
+      .callsFake((_, callback) => {
         callback(undefined);
         return () => {};
       });
@@ -20,7 +20,7 @@ describe('init-and-subscribe-to-firebase-data should', () => {
   ) => {
     return sinon
       .stub(service, 'onValue')
-      .callsFake((query, callback, defaultValue, firebaseConfig) => {
+      .callsFake((_, callback, __, firebaseConfig) => {
         callback(data);
         configCallback(firebaseConfig);
         return () => {};

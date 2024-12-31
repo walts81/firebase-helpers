@@ -5,11 +5,17 @@ steps:
       - npm install
       - npm run lint
       - npm run test
+    when:
+      - branch: master
+        event: push
   build:
     image: node:20-bullseye
     commands:
       - npm install
       - npm run build
+    when:
+      - branch: master
+        event: push
   deploy:
     image: node:20-bullseye
     environment:
@@ -22,7 +28,7 @@ steps:
     secrets: [NPM_TOKEN]
     depends_on: [test, build]
     when:
-      - event: tag
-        branch: master
+      - branch: master
+        event: tag
         ref: refs/tags/v*([0-9])*(\.*([0-9]))
       - evaluate: 'MANUAL_DEPLOY == "true"'

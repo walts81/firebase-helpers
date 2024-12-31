@@ -24,7 +24,7 @@ describe('init-firebase-array should', () => {
   });
   it('update item with key after push', async () => {
     const removeStub = sinon.stub(service, 'remove');
-    const pushStub = sinon.stub(service, 'push').callsFake((r, d) => {
+    const pushStub = sinon.stub(service, 'push').callsFake(() => {
       return Promise.resolve(snapshot as any);
     });
     const refStub = sinon.stub(service, 'ref').returns(updateRef);
@@ -47,7 +47,7 @@ describe('init-firebase-array should', () => {
   });
   it('commit mutation', async () => {
     const removeStub = sinon.stub(service, 'remove');
-    const pushStub = sinon.stub(service, 'push').callsFake((r, d) => {
+    const pushStub = sinon.stub(service, 'push').callsFake(() => {
       return Promise.resolve(snapshot as any);
     });
     const refStub = sinon.stub(service, 'ref').returns(updateRef);

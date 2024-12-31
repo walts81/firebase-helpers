@@ -437,7 +437,7 @@ describe('firebase-service', () => {
       const stubs: sinon.SinonStub[] = [];
       const removeStub = sinon.stub(db, 'remove');
       stubs.push(removeStub);
-      removeStub.callsFake(x => Promise.resolve());
+      removeStub.callsFake(() => Promise.resolve());
       const initStub = sinon.stub(db, 'initializeApp');
       stubs.push(initStub);
       stubs.push(sinon.stub(db, 'getDatabase'));
@@ -447,7 +447,7 @@ describe('firebase-service', () => {
     });
     it('call firebase remove', async () => {
       const refArg = { key: 'test-arg' } as any;
-      const stub = sinon.stub(db, 'remove').callsFake(x => Promise.resolve());
+      const stub = sinon.stub(db, 'remove').callsFake(() => Promise.resolve());
       await service.remove(refArg);
       expect(stub.calledOnceWithExactly(refArg)).to.be.true;
       stub.restore();
