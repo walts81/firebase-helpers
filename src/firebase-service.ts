@@ -205,7 +205,7 @@ export const get = async <T = any>(
   initWithNoError(firebaseConfig);
   const snapshot = await db.get(query);
   const val = snapshot.val();
-  return val || defaultValue;
+  return (val || defaultValue) as T;
 };
 
 export const set = <T = any>(

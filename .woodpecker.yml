@@ -1,0 +1,28 @@
+steps:
+  test:
+    image: node:20-bullseye
+    commands:
+      - npm install
+      - npm run lint
+      - npm run test
+  build:
+    image: node:20-bullseye
+    commands:
+      - npm install
+      - npm run build
+  deploy:
+    image: node:20-bullseye
+    environment:
+      - NODE_ENV=production
+    commands:
+      - npm install
+      - npm run build
+      - npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      - npm publish
+    secrets: [NPM_TOKEN]
+    depends_on: [test, build]
+    when:
+      - event: tag
+        branch: master
+        ref: refs/tags/v*([0-9])*(\.*([0-9]))
+      - evaluate: 'MANUAL_DEPLOY == "true"'
