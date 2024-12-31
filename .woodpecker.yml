@@ -1,5 +1,5 @@
 steps:
-  test:
+  - name: test
     image: node:20-bullseye
     commands:
       - npm install
@@ -9,7 +9,7 @@ steps:
       - event: push
         branch: master
       - evaluate: 'MANUAL_BUILD == "true"'
-  build:
+  - name: build
     image: node:20-bullseye
     commands:
       - npm install
@@ -18,7 +18,7 @@ steps:
       - event: push
         branch: master
       - evaluate: 'MANUAL_BUILD == "true"'
-  deploy:
+  -name: deploy
     image: node:20-bullseye
     environment:
       - NODE_ENV=production
