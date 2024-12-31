@@ -19,7 +19,7 @@ steps:
       - event: push
         branch: master
       - event: manual
-        evaluate: 'MANUAL_BUILD == "true"'
+        evaluate: 'MANUAL_BUILD == "true" || MANUAL_DEPLOY == "true"'
   deploy:
     image: node:20-bullseye
     environment:
