@@ -15,8 +15,8 @@ steps:
     environment:
       NODE_ENV: production
     commands:
-      - npm install
       - npm run build
+    depends_on: test
     when:
       - event: push
         branch: master
@@ -29,11 +29,9 @@ steps:
       NPM_TOKEN:
         from_secret: NPM_TOKEN
     commands:
-      - npm install
-      - npm run build
       - npm set "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
       - npm publish
-    depends_on: [build]
+    depends_on: build
     when:
       - event: tag
         branch: master
