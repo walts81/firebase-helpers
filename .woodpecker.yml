@@ -18,7 +18,7 @@ steps:
       - event: push
         branch: master
       - evaluate: 'MANUAL_BUILD == "true"'
-  -name: deploy
+  - name: deploy
     image: node:20-bullseye
     environment:
       - NODE_ENV=production
