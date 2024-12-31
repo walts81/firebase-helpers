@@ -8,7 +8,8 @@ steps:
     when:
       - event: push
         branch: master
-      - evaluate: 'MANUAL_BUILD == "true"'
+      - event: manual
+        evaluate: 'MANUAL_BUILD == "true"'
   - name: build
     image: node:20-bullseye
     commands:
@@ -17,7 +18,8 @@ steps:
     when:
       - event: push
         branch: master
-      - evaluate: 'MANUAL_BUILD == "true"'
+      - event: manual
+        evaluate: 'MANUAL_BUILD == "true"'
   - name: deploy
     image: node:20-bullseye
     environment:
@@ -33,4 +35,5 @@ steps:
       - event: tag
         branch: master
         ref: refs/tags/v*([0-9])*(\.*([0-9]))
-      - evaluate: 'MANUAL_DEPLOY == "true"'
+      - event: manual
+        evaluate: 'MANUAL_DEPLOY == "true"'
