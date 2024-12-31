@@ -12,6 +12,8 @@ steps:
         evaluate: 'MANUAL_BUILD == "true"'
   build:
     image: node:20-bullseye
+    environment:
+      NODE_ENV: production
     commands:
       - npm install
       - npm run build
@@ -29,10 +31,9 @@ steps:
     commands:
       - npm install
       - npm run build
-      - npm set //registry.npmjs.org/:_authToken=$${NPM_TOKEN}
+      - npm set "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
       - npm publish
-    secrets: [NPM_TOKEN]
-    depends_on: [test, build]
+    depends_on: [build]
     when:
       - event: tag
         branch: master
