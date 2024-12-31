@@ -45,7 +45,7 @@ async function updateItemInFirebaseArray<T extends { key: string }>(
     getArgsToUse<T>(mapArr, commit, mutation, firebaseConfig);
 
   const clonedArr = mapArrToUse(arr);
-  const ix = clonedArr.findIndex(x => x.key === item.key);
+  const ix = clonedArr.findIndex((x: any) => x.key === item.key);
   if (ix > -1) {
     clonedArr.splice(ix, 1, item);
     commitToUse(mutationToUse, clonedArr);

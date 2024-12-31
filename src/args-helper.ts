@@ -1,4 +1,4 @@
-export const isArray = data => {
+export const isArray = (data: any) => {
   return Object.prototype.toString.call(data) === '[object Array]';
 };
 

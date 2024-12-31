@@ -111,7 +111,7 @@ const onChildAddedOrChanged = <T = any>(
   return (data: T) => {
     const mapDataToUse = !!mapData
       ? mapData
-      : x => (!!x && typeof x === 'object' ? { ...x } : x);
+      : (x: any) => (!!x && typeof x === 'object' ? { ...x } : x);
     const arr = getArr().map(mapDataToUse);
     const dataToUse = mapDataToUse(data);
     let ix = -1;
