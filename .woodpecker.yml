@@ -12,8 +12,6 @@ steps:
         evaluate: 'MANUAL_BUILD == "true"'
   build:
     image: node:20-bullseye
-    environment:
-      NODE_ENV: production
     commands:
       - npm install
       - npm run build

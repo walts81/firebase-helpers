@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "npm run clean:build && node_modules/.bin/tsc",
+    "build": "npm run clean:build && tsc",
     "test": "TS_NODE_FILES=true mocha",
     "test:cov": "npm run clean:coverage && TS_NODE_FILES=true nyc mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
