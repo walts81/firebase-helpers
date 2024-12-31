@@ -15,6 +15,7 @@ steps:
     environment:
       NODE_ENV: production
     commands:
+      - npm install
       - npm run build
     when:
       - event: push
