@@ -1,5 +1,5 @@
 steps:
-  - name: test
+  test:
     image: node:20-bullseye
     commands:
       - npm install
@@ -10,7 +10,7 @@ steps:
         branch: master
       - event: manual
         evaluate: 'MANUAL_BUILD == "true"'
-  - name: build
+  build:
     image: node:20-bullseye
     commands:
       - npm install
@@ -20,14 +20,16 @@ steps:
         branch: master
       - event: manual
         evaluate: 'MANUAL_BUILD == "true"'
-  - name: deploy
+  deploy:
     image: node:20-bullseye
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      NPM_TOKEN:
+        from_secret: NPM_TOKEN
     commands:
       - npm install
       - npm run build
-      - npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+      - npm set //registry.npmjs.org/:_authToken=$${NPM_TOKEN}
       - npm publish
     secrets: [NPM_TOKEN]
     depends_on: [test, build]
