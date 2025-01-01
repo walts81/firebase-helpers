@@ -29,18 +29,18 @@ export const onArrayOnce = async <T = any>(
 ) => {
   initWithNoError(firebaseConfig);
   const snapshot = await once(query, db.onValue);
-  const data: T[] = [];
+  const result: T[] = [];
   if (snapshot.exists()) {
     snapshot.forEach(x => {
       const data = x.val();
       if (typeof data === 'object' && !isArray(data)) {
-        data.push({ ...data, key: x.key });
+        result.push({ ...data, key: x.key });
       } else {
-        data.push(data);
+        result.push(data);
       }
     });
   }
-  return data;
+  return result;
 };
 
 export const onValueOnce = async <T = any>(
