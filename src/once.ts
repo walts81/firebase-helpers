@@ -32,7 +32,12 @@ export const onArrayOnce = async <T = any>(
   const data: T[] = [];
   if (snapshot.exists()) {
     snapshot.forEach(x => {
-      data.push(x.val());
+      const data = x.val();
+      if (typeof data === 'object' && !isArray(data)) {
+        data.push({ ...data, key: x.key });
+      } else {
+        data.push(data);
+      }
     });
   }
   return data;
@@ -46,8 +51,9 @@ export const onValueOnce = async <T = any>(
   const snapshot = await once(query, db.onValue);
   if (snapshot.exists()) {
     const data = snapshot.val();
-    if (typeof data === 'object' && !isArray(data))
-      return { key: snapshot.key, ...data };
+    if (typeof data === 'object' && !isArray(data)) {
+      return { ...data, key: snapshot.key };
+    }
     return data;
   }
   return undefined as any;
