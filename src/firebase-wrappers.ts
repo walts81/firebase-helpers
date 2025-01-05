@@ -3,6 +3,7 @@ import * as app from 'firebase/app';
 
 export const endAt = db.endAt;
 export const endBefore = db.endBefore;
+export const equalTo = db.equalTo;
 export const get = db.get;
 export const getDatabase = db.getDatabase;
 export const increment = db.increment;
